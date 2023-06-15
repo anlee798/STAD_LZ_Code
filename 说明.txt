@@ -1,0 +1,31 @@
+更换模型方式：
+    修改models/yowo/build.py
+    导入的yowo类的位置
+
+Pretrain
+cp ~ /root/.cache/torch/hub/checkpoints/
+
+1、models/yowo/yowo.py
+
+    yowov2-官方
+
+2、models/yowo/yowov2_tsm.py
+    YOLOX+TSM
+    含有预训练模型的YOWOv2_TSM
+
+3、models/yowo/yowov2_tsm_freeyolo.py
+    freeyolo+TSM
+    含有预训练模型的YOWOv2_TSM_freeyolo
+
+4、models/yowo/yowo_yolox.py
+    YOLOX+ 3D Backbone 损失函数有问题-过度结合
+
+5、models/yowo/yowo_yolox2.py
+    YOLOX+ 3D Backbone
+    仅替换freeyolo为yolox
+    
+cp yolov8_n.pth /root/.cache/torch/hub/checkpoints/
+cp kinetics_shufflenetv2_2.0x_RGB_16_best.pth /root/.cache/torch/hub/checkpoints/
+
+
+
