@@ -100,7 +100,7 @@ class YOWO(nn.Module):
         if cfg['pretrained_3d']:
             print('Loading 3D backbone pretrained weight: {}'.format("TSM"))
             
-            url = 'https://github.com/anlee798/YOWOv2_TSM/releases/download/1.0/ckpt.best.pth.tar'
+            url = 'https://github.com/anlee798/STAD_LZ_Code/releases/download/v1.0/TSM_UCF101.pth.tar'
             if url is None:
                 print('No 2D pretrained weight ...')
                 return self.backbone_3d 
