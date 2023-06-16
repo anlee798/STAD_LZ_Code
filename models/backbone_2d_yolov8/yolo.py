@@ -49,7 +49,7 @@ class DWConv(nn.Module):
         return self.pconv(x)
 
 # My YOLOv7 Head
-class YOLOXHead2(nn.Module):
+class YOLOXHead(nn.Module):
     def __init__(self, num_classes, width = 1.0, in_channels = [256, 512, 1024], act = "silu", depthwise = False,):
         super().__init__()
         Conv            = DWConv if depthwise else BaseConv
@@ -288,12 +288,10 @@ class YoloBody(nn.Module):
         self.cv3 = nn.ModuleList(nn.Sequential(Conv(x, c3, 3), Conv(c3, c3, 3), nn.Conv2d(c3, num_classes, 1)) for x in ch)
         self.dfl = DFL(self.reg_max) if self.reg_max > 1 else nn.Identity()
         
-        depth_dict = {'nano': 0.33, 'tiny': 0.33, 's' : 0.33, 'm' : 0.67, 'l' : 1.00, 'x' : 1.33,}
-        width_dict = {'nano': 0.25, 'tiny': 0.375, 's' : 0.50, 'm' : 0.75, 'l' : 1.00, 'x' : 1.25,}
-        phi = 'nano'
-        depth, width    = depth_dict[phi], width_dict[phi]
-        depthwise       = True if phi == 'nano' else False 
-        self.head       = YOLOXHead2(num_classes, width, depthwise=depthwise)
+        width_dict = {'n': 0.25, 'tiny': 0.375, 's' : 0.50, 'm' : 0.75, 'l' : 1.00, 'x' : 1.25,}
+        width    =  width_dict[phi]
+        depthwise       = True if phi == 'n' else False 
+        self.head       = YOLOXHead(num_classes, width, depthwise=depthwise)
 
 
     def fuse(self):
