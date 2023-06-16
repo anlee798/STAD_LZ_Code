@@ -298,7 +298,7 @@ def eval_one_epoch(args, model_eval,optimizer, evaluator, epoch, path_to_save):
         checkpoint_path = os.path.join(path_to_save, weight_name)
         torch.save({'model': model_eval.state_dict(),
                     'epoch': epoch,
-                    'optimizer':optimizer,
+                    #'optimizer':optimizer,
                     'args': args}, 
                     checkpoint_path) 
         
