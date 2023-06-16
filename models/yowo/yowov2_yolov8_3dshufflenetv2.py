@@ -44,11 +44,14 @@ class YOWO(nn.Module):
         ## 2D backbone
         # self.backbone_2d, bk_dim_2d = build_backbone_2d(
         #     cfg, pretrained=cfg['pretrained_2d'] and trainable)
-        
-        self.backbone_2d = YoloBody(input_shape=224,num_classes=24,phi='n',pretrained=False)
+        self.phi = 'n'
+        self.backbone_2d = YoloBody(input_shape=224,num_classes=24,phi=self.phi,pretrained=False)
         
         if cfg['pretrained_2d']:
-            url = 'https://github.com/bubbliiiing/yolov8-pytorch/releases/download/v1.0/yolov8_n.pth'
+            if self.phi == 'n':
+                url = 'https://github.com/bubbliiiing/yolov8-pytorch/releases/download/v1.0/yolov8_n.pth'
+            elif self.phi == 's':
+                url = 'https://github.com/bubbliiiing/yolov8-pytorch/releases/download/v1.0/yolov8_s.pth'
 
             # check
             if url is None:
