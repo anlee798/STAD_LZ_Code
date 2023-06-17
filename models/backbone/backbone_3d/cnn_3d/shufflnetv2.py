@@ -15,7 +15,8 @@ model_urls = {
     "0.25x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_0.25x_RGB_16_best.pth",
     "1.0x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_1.0x_RGB_16_best.pth",
     "1.5x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_1.5x_RGB_16_best.pth",
-    "2.0x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_2.0x_RGB_16_best.pth",
+    #"2.0x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_2.0x_RGB_16_best.pth", #kinetics
+    "2.0x": "https://github.com/anlee798/STAD_LZ_Code/releases/download/v1.0/ucf101_shufflenetv2_2.0x_RGB_16_best.pth", #UCF101
 }
 
 
@@ -220,7 +221,7 @@ def build_shufflenetv2_3d(model_size='0.25x', pretrained=False):
 
 if __name__ == '__main__':
     import time
-    model, feat = build_shufflenetv2_3d(model_size='1.0x', pretrained=True)
+    model, feat = build_shufflenetv2_3d(model_size='2.0x', pretrained=True)
     if torch.cuda.is_available():
         device = torch.device("cuda")
     else:
@@ -228,7 +229,7 @@ if __name__ == '__main__':
     model = model.to(device)
 
     # [B, C, T, H, W]
-    x = torch.randn(1, 3, 16, 64, 64).to(device)
+    x = torch.randn(1, 3, 16, 224, 224).to(device)
     # star time
     t0 = time.time()
     out = model(x)
