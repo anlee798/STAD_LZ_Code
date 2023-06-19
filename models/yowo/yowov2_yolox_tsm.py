@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.hub import load_state_dict_from_url
 
 from ..backbone import build_backbone_2d
 from ..backbone import build_backbone_3d
@@ -11,6 +12,7 @@ from .head import build_head
 from utils.nms import multiclass_nms
 
 from ..backbone_2d_yolox.yolo import YoloBody
+from ..temporal_shift_module.ops.models import TSN
 
 
 # You Only Watch Once
@@ -41,12 +43,91 @@ class YOWO(nn.Module):
         #     cfg, pretrained=cfg['pretrained_2d'] and trainable)
         
         self.backbone_2d = YoloBody(24, 's')
+        if cfg['pretrained_2d']:
+            url = 'https://github.com/bubbliiiing/yolox-pytorch/releases/download/v1.0/yolox_s.pth'
+            
+            # checkpoint = torch.load('/root/autodl-tmp/YOWOv2_TSM_Pre/Pretrain/yolox_s.pth') #load_state_dict_from_url(url, map_location='cpu')
+            # checkpoint_state_dict = checkpoint.pop('state_dict')
+            # cp yolox_s.pth 
+
+            # check
+            if url is None:
+                print('No 2D pretrained weight ...')
+                return self.backbone_2d 
+            else:
+                print('Loading 2D backbone pretrained weight: {}'.format("YOLO-X"))
+
+                # state dict
+                checkpoint = load_state_dict_from_url(url, map_location='cpu')
+                # checkpoint_state_dict = checkpoint.pop('model')
+                checkpoint_state_dict = checkpoint
+
+                # model state dict
+                model_state_dict = self.backbone_2d.state_dict()
+                # for k in model_state_dict.keys():
+                #     print("model_state_dict",k)
+                # check
+                for k in list(checkpoint_state_dict.keys()):
+                    if k in model_state_dict:
+                        shape_model = tuple(model_state_dict[k].shape)
+                        shape_checkpoint = tuple(checkpoint_state_dict[k].shape)
+                        if shape_model != shape_checkpoint:
+                            # print("k in model_state_dict",k)
+                            checkpoint_state_dict.pop(k)
+                    else:
+                        checkpoint_state_dict.pop(k)
+                        # print(k)
+
+                self.backbone_2d.load_state_dict(checkpoint_state_dict, strict=False)
         bk_dim_2d = [64,64,64]
         
+        # Temporal Backbone
+        self.backbone_3d = TSN(num_classes, num_segments=16, modality='RGB',
+                                base_model='mobilenetv2',
+                                dropout=0.5,
+                                img_feature_dim=224,
+                                partial_bn=True,
+                                is_shift=True, shift_div=8, shift_place="blockres",
+                                fc_lr5=True,
+                                non_local=False)
+        
+        if cfg['pretrained_3d']:
+            print('Loading 3D backbone pretrained weight: {}'.format("TSM"))
             
-        ## 3D backbone
-        self.backbone_3d, bk_dim_3d = build_backbone_3d(
-            cfg, pretrained=cfg['pretrained_3d'] and trainable)
+            url = 'https://github.com/anlee798/STAD_LZ_Code/releases/download/v1.0/TSM_UCF101.pth.tar'
+            # state dict
+            checkpoint = load_state_dict_from_url(url, map_location='cpu')
+            checkpoint_state_dict = checkpoint.pop('state_dict')
+
+            # model state dict
+            model_state_dict = self.backbone_3d.state_dict()
+
+            # reformat checkpoint_state_dict:
+            new_state_dict = {}
+            for k in checkpoint_state_dict.keys():
+                v = checkpoint_state_dict[k]
+                new_state_dict[k[7:]] = v
+
+            # check
+            for k in list(new_state_dict.keys()):
+                if k in model_state_dict:
+                    shape_model = tuple(model_state_dict[k].shape)
+                    shape_checkpoint = tuple(new_state_dict[k].shape)
+                    if shape_model != shape_checkpoint:
+                        new_state_dict.pop(k)
+                        print("k in model_state_dict",k)
+                else:
+                    new_state_dict.pop(k)
+                    print("k not in model_state_dict",k)
+
+            self.backbone_3d.load_state_dict(new_state_dict, strict=False)
+                
+        bk_dim_3d = 1280
+        
+            
+        # ## 3D backbone
+        # self.backbone_3d, bk_dim_3d = build_backbone_3d(
+        #     cfg, pretrained=cfg['pretrained_3d'] and trainable)
 
         ## cls channel encoder
         self.cls_channel_encoders = nn.ModuleList(
@@ -375,6 +456,9 @@ class YOWO(nn.Module):
             key_frame = video_clips[:, :, -1, :, :]
             # 3D backbone
             feat_3d = self.backbone_3d(video_clips)
+            print("feat_3d",feat_3d.shape)
+            
+            # print("feat_3d",feat_3d.size()) #feat_3d torch.Size([1, 1280, 7, 7])
 
             # 2D backbone
             cls_feats, reg_feats = self.backbone_2d(key_frame)
@@ -411,9 +495,6 @@ class YOWO(nn.Module):
                 # generate anchors
                 fmp_size = conf_pred.shape[-2:]
                 anchors = self.generate_anchors(fmp_size, self.stride[level])
-                print(fmp_size)
-                print(self.stride[level])
-                print("anchors",anchors.size())
 
                 # [B, C, H, W] -> [B, H, W, C] -> [B, M, C]
                 conf_pred = conf_pred.permute(0, 2, 3, 1).contiguous().flatten(1, 2)

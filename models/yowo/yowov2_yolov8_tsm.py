@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.hub import load_state_dict_from_url
 
 from ..backbone import build_backbone_2d
 from ..backbone import build_backbone_3d
@@ -11,7 +10,8 @@ from .head import build_head
 
 from utils.nms import multiclass_nms
 
-from ..backbone_2d_yolox.yolo import YoloBody
+from ..backbone_2d_yolov8.yolo import YoloBody
+from torch.hub import load_state_dict_from_url
 from ..temporal_shift_module.ops.models import TSN
 
 
@@ -36,51 +36,53 @@ class YOWO(nn.Module):
         self.nms_thresh = nms_thresh
         self.topk = topk
         self.multi_hot = multi_hot
+        
+        print("\n----------------------------------------------")
+        print("Current Backbone YOWOv2_YOLOv8_3D-ShuffleNetv2_2x_Loss_YOWOv2")
+        print("----------------------------------------------\n")
 
         # ------------------ Network ---------------------
         ## 2D backbone
         # self.backbone_2d, bk_dim_2d = build_backbone_2d(
         #     cfg, pretrained=cfg['pretrained_2d'] and trainable)
+        self.phi = 'n'
+        self.backbone_2d = YoloBody(input_shape=224,num_classes=self.num_classes,phi=self.phi,pretrained=False)
         
-        self.backbone_2d = YoloBody(24, 's')
         if cfg['pretrained_2d']:
-            url = 'https://github.com/bubbliiiing/yolox-pytorch/releases/download/v1.0/yolox_s.pth'
-            
-            # checkpoint = torch.load('/root/autodl-tmp/YOWOv2_TSM_Pre/Pretrain/yolox_s.pth') #load_state_dict_from_url(url, map_location='cpu')
-            # checkpoint_state_dict = checkpoint.pop('state_dict')
-            # cp yolox_s.pth 
+            if self.phi == 'n':
+                url = 'https://github.com/bubbliiiing/yolov8-pytorch/releases/download/v1.0/yolov8_n.pth'
+            elif self.phi == 's':
+                url = 'https://github.com/bubbliiiing/yolov8-pytorch/releases/download/v1.0/yolov8_s.pth'
 
             # check
             if url is None:
                 print('No 2D pretrained weight ...')
                 return self.backbone_2d 
             else:
-                print('Loading 2D backbone pretrained weight: {}'.format("YOLO-X"))
-
+                print('Loading 2D backbone pretrained weight: {}'.format("YOLO-v8"))
                 # state dict
                 checkpoint = load_state_dict_from_url(url, map_location='cpu')
                 # checkpoint_state_dict = checkpoint.pop('model')
                 checkpoint_state_dict = checkpoint
-
                 # model state dict
                 model_state_dict = self.backbone_2d.state_dict()
-                # for k in model_state_dict.keys():
-                #     print("model_state_dict",k)
                 # check
                 for k in list(checkpoint_state_dict.keys()):
                     if k in model_state_dict:
                         shape_model = tuple(model_state_dict[k].shape)
                         shape_checkpoint = tuple(checkpoint_state_dict[k].shape)
-                        if shape_model != shape_checkpoint:
-                            # print("k in model_state_dict",k)
+                        if shape_model != shape_checkpoint:                            
+                            print("k in model_state_dict",k)
                             checkpoint_state_dict.pop(k)
                     else:
                         checkpoint_state_dict.pop(k)
-                        # print(k)
+                        print("k not in model_state_dict",k)
 
                 self.backbone_2d.load_state_dict(checkpoint_state_dict, strict=False)
+                
         bk_dim_2d = [64,64,64]
         
+        # Temporal Backbone
         self.backbone_3d = TSN(num_classes, num_segments=16, modality='RGB',
                                 base_model='mobilenetv2',
                                 dropout=0.5,
@@ -92,19 +94,14 @@ class YOWO(nn.Module):
         
         if cfg['pretrained_3d']:
             print('Loading 3D backbone pretrained weight: {}'.format("TSM"))
-
+            
+            url = 'https://github.com/anlee798/STAD_LZ_Code/releases/download/v1.0/TSM_UCF101.pth.tar'
             # state dict
-            checkpoint = torch.load('/Users/zhuanlei/Downloads/YOWOv2_TSM_yolov7/Pretrain/ckpt.best.pth.tar',map_location=torch.device('cpu')) #load_state_dict_from_url(url, map_location='cpu')
+            checkpoint = load_state_dict_from_url(url, map_location='cpu')
             checkpoint_state_dict = checkpoint.pop('state_dict')
-            # checkpoint_state_dict = checkpoint
-            # for k in checkpoint_state_dict.keys():
-            #     print("model_state_dict",k)
 
             # model state dict
             model_state_dict = self.backbone_3d.state_dict()
-            # for k in model_state_dict.keys():
-            #     print("model_state_dict",k)
-            # check
 
             # reformat checkpoint_state_dict:
             new_state_dict = {}
@@ -127,11 +124,12 @@ class YOWO(nn.Module):
             self.backbone_3d.load_state_dict(new_state_dict, strict=False)
                 
         bk_dim_3d = 1280
-        
             
         # ## 3D backbone
         # self.backbone_3d, bk_dim_3d = build_backbone_3d(
         #     cfg, pretrained=cfg['pretrained_3d'] and trainable)
+        
+        # print("bk_dim_3d",bk_dim_3d)
 
         ## cls channel encoder
         self.cls_channel_encoders = nn.ModuleList(
@@ -460,9 +458,6 @@ class YOWO(nn.Module):
             key_frame = video_clips[:, :, -1, :, :]
             # 3D backbone
             feat_3d = self.backbone_3d(video_clips)
-            print("feat_3d",feat_3d.shape)
-            
-            # print("feat_3d",feat_3d.size()) #feat_3d torch.Size([1, 1280, 7, 7])
 
             # 2D backbone
             cls_feats, reg_feats = self.backbone_2d(key_frame)
@@ -519,12 +514,4 @@ class YOWO(nn.Module):
                        "pred_box": all_box_preds,         # List(Tensor) [B, M, 4]
                        "anchors": all_anchors,            # List(Tensor) [B, M, 2]
                        "strides": self.stride}            # List(Int)
-            # print("outputs",outputs['pred_conf'][0].size())
-            # print("outputs",outputs['pred_conf'][1].size())
-            # print("outputs",outputs['pred_conf'][2].size())
-            # print(len(outputs['pred_conf']))
-            # print("pred_cls",outputs['pred_cls'].size())
-            # print("pred_box",outputs['pred_box'].size())
-            # print("anchors",outputs['anchors'].size())
-            # print("strides",outputs['stridesc'].size())
             return outputs
