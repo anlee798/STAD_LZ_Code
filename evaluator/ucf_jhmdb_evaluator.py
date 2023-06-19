@@ -43,7 +43,7 @@ class UCF_JHMDB_Evaluator(object):
         
         if not os.path.exists('log'):
             os.mkdir('log')
-        self.log_frame_mAP = open(os.path.join('log', 'log_frame_mAP2.txt'), 'w')
+        self.log_frame_mAP = open(os.path.join('log', 'log_frame_mAP.txt'), 'w')
 
         # dataset
         if metric == 'fmap':
