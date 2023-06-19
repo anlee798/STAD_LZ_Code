@@ -1,4 +1,4 @@
-|Code|Space Method|Temporal Method|
+|Code|Spatio Method|Temporal Method|
 |:-|:-:|-:|
 |yowo.py|Free-YOLO|3D-ShuffleNetv2_2x|
 |yowov2_yolov8_3dshufflenetv2.py|YOLOv8|3D-ShuffleNetv2_2x|
