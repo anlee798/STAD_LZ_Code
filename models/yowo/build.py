@@ -8,6 +8,7 @@ import torch
 # from .yowo_v2_yolov7_my import YOWO
 # from .yowo_v2_yolov8_my import YOWO
 from .yowov2_yolov8_3dshufflenetv2 import YOWO
+# from .yowov2_yolov8_tsm import YOWO
 from .loss import build_criterion
 
 
