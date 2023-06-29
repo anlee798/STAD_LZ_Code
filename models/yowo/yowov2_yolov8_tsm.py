@@ -95,6 +95,8 @@ class YOWO(nn.Module):
         if cfg['pretrained_3d']:
             print('Loading 3D backbone pretrained weight: {}'.format("TSM"))
             
+            #url = 'https://hanlab.mit.edu/projects/tsm/models/TSM_kinetics_RGB_mobilenetv2_shift8_blockres_avg_segment8_e100_dense.pth'
+            
             url = 'https://github.com/anlee798/STAD_LZ_Code/releases/download/v1.0/TSM_UCF101.pth.tar'
             # state dict
             checkpoint = load_state_dict_from_url(url, map_location='cpu')
