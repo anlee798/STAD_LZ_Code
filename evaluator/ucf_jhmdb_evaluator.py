@@ -152,6 +152,16 @@ class UCF_JHMDB_Evaluator(object):
             print(metric)
             self.log_frame_mAP.write(metric + '\n')
             self.log_frame_mAP.flush()
+            
+        import requests
+        headers = {"Authorization": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjE5NjYyLCJ1dWlkIjoiZmZhYWJjMzktNWUxOC00OWI5LWIxYmQtYTM2MmFmMGFkNzk5IiwiaXNfYWRtaW4iOmZhbHNlLCJpc19zdXBlcl9hZG1pbiI6ZmFsc2UsInN1Yl9uYW1lIjoiIiwidGVuYW50IjoiYXV0b2RsIiwidXBrIjoiIn0.GhojSkJzcMC46q4RoNdFKuAHMNnqCjehNvlEqQPL4_vnjAd6cY9CUQ2ul_HX94PM0ra-tSM3oBI_0SuDqQbHtw"}
+        resp = requests.post("https://www.autodl.com/api/v1/wechat/message/send",
+                            json={
+                                "title": metric_list[-1],
+                                "name": "eg. 我的YOWOv3实验",
+                                "content": "eg. Epoch=7. Acc=?"
+                            }, headers = headers)
+        print(resp.content.decode())
 
 
     def evaluate_video_map(self, model):

@@ -182,6 +182,8 @@ if __name__ == '__main__':
             transform=basetransform,
             collate_fn=CollateFunc()
             )
+    # 运行完自动关机
+    os.system("/usr/bin/shutdown")
 
 '''
 python eval.py  --cuda -d ucf24 -v yowo_v2_tiny -bs 32 -size 224 --weight weights/ucf24/yowo_v2_tiny/yowo_v2_tiny_epoch_4.pth --cal_frame_mAP
