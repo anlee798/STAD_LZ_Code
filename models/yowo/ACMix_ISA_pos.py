@@ -5,18 +5,28 @@ from torch.nn import functional as F
 import numpy as np
 import time
 
+# def position(H, W, is_cuda=True):
+#     if is_cuda:
+#         loc_h = torch.linspace(-1.0, 1.0, H).cuda().unsqueeze(1)
+#         loc_w = torch.linspace(-1.0, 1.0, W).cuda().unsqueeze(0) 
+#     else:
+#         loc_h = torch.linspace(-1.0, 1.0, H).unsqueeze(1)
+#         loc_w = torch.linspace(-1.0, 1.0, W).unsqueeze(0)
+
+#     loc_h = loc_h.repeat(1, W)
+#     loc_w = loc_w.repeat(H, 1)
+    
+#     loc = torch.cat([loc_h.unsqueeze(0), loc_w.unsqueeze(0)], 0).unsqueeze(0)
+#     return loc
+
 def position(H, W, is_cuda=True):
     if is_cuda:
-        loc_h = torch.linspace(-1.0, 1.0, H).cuda().unsqueeze(1)
-        loc_w = torch.linspace(-1.0, 1.0, W).cuda().unsqueeze(0) 
+        loc_w = torch.linspace(-1.0, 1.0, W).cuda().unsqueeze(0).repeat(H, 1)
+        loc_h = torch.linspace(-1.0, 1.0, H).cuda().unsqueeze(1).repeat(1, W)
     else:
-        loc_h = torch.linspace(-1.0, 1.0, H).unsqueeze(1)
-        loc_w = torch.linspace(-1.0, 1.0, W).unsqueeze(0)
-
-    loc_h = loc_h.repeat(1, W)
-    loc_w = loc_w.repeat(H, 1)
-    
-    loc = torch.cat([loc_h.unsqueeze(0), loc_w.unsqueeze(0)], 0).unsqueeze(0)
+        loc_w = torch.linspace(-1.0, 1.0, W).unsqueeze(0).repeat(H, 1)
+        loc_h = torch.linspace(-1.0, 1.0, H).unsqueeze(1).repeat(1, W)
+    loc = torch.cat([loc_w.unsqueeze(0), loc_h.unsqueeze(0)], 0).unsqueeze(0)
     return loc
 
 class SelfAttentionBlock2D(nn.Module):
