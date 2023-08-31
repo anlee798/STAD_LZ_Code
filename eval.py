@@ -78,7 +78,7 @@ def ucf_jhmdb_eval(args, d_cfg, model, transform, collate_fn):
             save_path=args.save_path
             )
         # evaluate
-        evaluator.evaluate_frame_map(model, show_pr_curve=True)
+        evaluator.evaluate_frame_map(model, show_pr_curve=False)
 
     elif args.cal_video_mAP:
         # Video mAP evaluator
