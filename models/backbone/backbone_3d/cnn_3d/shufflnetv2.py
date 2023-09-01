@@ -15,8 +15,8 @@ model_urls = {
     "0.25x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_0.25x_RGB_16_best.pth",
     "1.0x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_1.0x_RGB_16_best.pth",
     "1.5x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_1.5x_RGB_16_best.pth",
-    #"2.0x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_2.0x_RGB_16_best.pth", #kinetics
-    "2.0x": "https://github.com/anlee798/STAD_LZ_Code/releases/download/v1.0/ucf101_shufflenetv2_2.0x_RGB_16_best.pth", #UCF101
+    "2.0x": "https://github.com/yjh0410/PyTorch_YOWO/releases/download/yowo-weight/kinetics_shufflenetv2_2.0x_RGB_16_best.pth", #kinetics
+    # "2.0x": "https://github.com/anlee798/STAD_LZ_Code/releases/download/v1.0/ucf101_shufflenetv2_2.0x_RGB_16_best.pth", #UCF101
 }
 
 
