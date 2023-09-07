@@ -69,6 +69,8 @@ def parse_args():
     # Model
     parser.add_argument('-v', '--version', default='yowo_v2_tiny', type=str,
                         help='build YOWOv2')
+    parser.add_argument('-mname', '--cur_model_name', default='yowo_v2_tiny', type=str,
+                        help='cur model name')
     parser.add_argument('-r', '--resume', default=None, type=str,
                         help='keep training')
     parser.add_argument('-ct', '--conf_thresh', default=0.1, type=float,
@@ -227,7 +229,6 @@ def train():
         
         f.write("d_cfg:"+str(d_cfg))
         f.write('\n')
-    log_frame_mAP = open(os.path.join('log', 'log_frame_mAP.txt'), 'w')
         
     for epoch in range(start_epoch, max_epoch):
         if args.distributed:
@@ -294,7 +295,8 @@ def eval_one_epoch(args, model_eval,optimizer, evaluator, epoch, path_to_save):
     if distributed_utils.is_main_process():
         # save model
         print('Saving state, epoch:', epoch + 1)
-        weight_name = '{}_epoch_{}.pth'.format(args.version, epoch+1)
+        # weight_name = '{}_epoch_{}.pth'.format(args.version, epoch+1)
+        weight_name = '{}_epoch_{}.pth'.format(args.cur_model_name, epoch+1)
         checkpoint_path = os.path.join(path_to_save, weight_name)
         torch.save({'model': model_eval.state_dict(),
                     'epoch': epoch,

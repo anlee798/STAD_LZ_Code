@@ -3,6 +3,7 @@ python train.py \
         --cuda \
         -d ucf24 \
         -v yowo_v2_tiny \
+        -mname YOWOv3 \
         --root /root/autodl-tmp/ \
         --num_workers 10 \
         --eval_epoch 1 \
