@@ -44,6 +44,7 @@ class UCF_JHMDB_Evaluator(object):
         if not os.path.exists('log'):
             os.mkdir('log')
         self.log_frame_mAP = open(os.path.join('log', 'log_frame_mAP.txt'), 'w')
+        self.log_video_mAP = open(os.path.join('log', 'log_video_mAP.txt'), 'w')
 
         # dataset
         if metric == 'fmap':
@@ -270,27 +271,21 @@ class UCF_JHMDB_Evaluator(object):
             print('V-mAP @ {} IoU:'.format(iou_th))
             print('--Per AP: ', per_ap)
             print('--mAP: ', round(video_mAP, 2))
+            self.log_video_mAP.write('V-mAP @ {} IoU:'.format(iou_th) + '\n')
+            self.log_video_mAP.write('--Per AP: {}'.format(per_ap) + '\n')
+            self.log_video_mAP.write('--mAP: {}'.format(round(video_mAP, 2)) + '\n')
+            self.log_video_mAP.write('-------------------------------' + '\n')
+            self.log_video_mAP.flush()
+            
+        import requests
+        headers = {"Authorization": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjE5NjYyLCJ1dWlkIjoiZmZhYWJjMzktNWUxOC00OWI5LWIxYmQtYTM2MmFmMGFkNzk5IiwiaXNfYWRtaW4iOmZhbHNlLCJpc19zdXBlcl9hZG1pbiI6ZmFsc2UsInN1Yl9uYW1lIjoiIiwidGVuYW50IjoiYXV0b2RsIiwidXBrIjoiIn0.GhojSkJzcMC46q4RoNdFKuAHMNnqCjehNvlEqQPL4_vnjAd6cY9CUQ2ul_HX94PM0ra-tSM3oBI_0SuDqQbHtw"}
+        resp = requests.post("https://www.autodl.com/api/v1/wechat/message/send",
+                            json={
+                                "title": 'calculating video mAP',
+                                "name": "eg. 我的YOWOv3实验",
+                                "content": "eg. Epoch=7. Acc=?"
+                            }, headers = headers)
 
-    def hh(self):
-        print("Metric: Frame mAP")
-        # dataloader
-        self.testloader = torch.utils.data.DataLoader(
-            dataset=self.testset, 
-            batch_size=self.batch_size,
-            shuffle=False,
-            collate_fn=self.collate_fn, 
-            num_workers=4,
-            drop_last=False,
-            pin_memory=True
-            )
-        
-        epoch_size = len(self.testloader)
-
-        # inference
-        for iter_i, (batch_frame_id, batch_video_clip, batch_target) in enumerate(self.testloader):
-            print("batch_frame_id",batch_frame_id)
-            import sys
-            sys.exit(0)
 
 if __name__ == "__main__":
     pass
