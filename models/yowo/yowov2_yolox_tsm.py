@@ -42,7 +42,7 @@ class YOWO(nn.Module):
         # self.backbone_2d, bk_dim_2d = build_backbone_2d(
         #     cfg, pretrained=cfg['pretrained_2d'] and trainable)
         
-        self.backbone_2d = YoloBody(24, 's')
+        self.backbone_2d = YoloBody(self.num_classes, 's')
         if cfg['pretrained_2d']:
             url = 'https://github.com/bubbliiiing/yolox-pytorch/releases/download/v1.0/yolox_s.pth'
             

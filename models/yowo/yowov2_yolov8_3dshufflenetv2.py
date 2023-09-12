@@ -45,7 +45,7 @@ class YOWO(nn.Module):
         # self.backbone_2d, bk_dim_2d = build_backbone_2d(
         #     cfg, pretrained=cfg['pretrained_2d'] and trainable)
         self.phi = 'n'
-        self.backbone_2d = YoloBody(input_shape=224,num_classes=24,phi=self.phi,pretrained=False)
+        self.backbone_2d = YoloBody(input_shape=224,num_classes=self.num_classes,phi=self.phi,pretrained=False)
         
         if cfg['pretrained_2d']:
             if self.phi == 'n':

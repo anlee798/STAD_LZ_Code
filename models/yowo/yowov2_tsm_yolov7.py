@@ -100,7 +100,7 @@ class YOWO(nn.Module):
         
         # self.backbone_2d = YoloBody(24, 's')
         anchors_mask    = [[6, 7, 8], [3, 4, 5], [0, 1, 2]]
-        self.backbone_2d = YoloBody(anchors_mask=anchors_mask,num_classes=24)
+        self.backbone_2d = YoloBody(anchors_mask=anchors_mask,num_classes=self.num_classes)
         if self.pretrained_2d:
             url = 'https://github.com/bubbliiiing/yolov7-tiny-pytorch/releases/download/v1.0/yolov7_tiny_weights.pth'
             

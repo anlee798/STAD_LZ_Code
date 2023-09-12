@@ -45,7 +45,7 @@ class YOWO(nn.Module):
         #     cfg, pretrained=cfg['pretrained_2d'] and trainable)
         
         # self.backbone_2d = YoloBody(24, 's')
-        self.backbone_2d = YoloBody(input_shape=224,num_classes=24,phi='n',pretrained=False)
+        self.backbone_2d = YoloBody(input_shape=224,num_classes=self.num_classes,phi='n',pretrained=False)
         
         if cfg['pretrained_2d']:
             url = 'https://github.com/bubbliiiing/yolov8-pytorch/releases/download/v1.0/yolov8_n.pth'
