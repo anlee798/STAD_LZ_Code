@@ -37,4 +37,19 @@ numpy==1.20
 
 imageio
 ```
+UCF101-24, JHMDB21
 
+```
+UCF-24:
+
+sh train_ucf.sh
+
+sh eval_frame.sh
+
+JHMDB-21:
+
+sh train_jhmdb.sh
+
+sh eval_jhmdb.sh
+
+```
